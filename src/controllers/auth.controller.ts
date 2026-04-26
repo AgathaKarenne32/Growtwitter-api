@@ -4,7 +4,7 @@ import { AuthService } from "../services";
 import { onError } from "../utils";
 
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   public register = async (req: Request, res: Response) => {
     try {
