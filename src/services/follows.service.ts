@@ -1,69 +1,47 @@
-import { User as UserEntity } from "@prisma/client";
-
-import prismaRepository from "../database/prisma.repository";
 import { FollowDto } from "../dtos";
 import { User } from "../models";
 import { HTTPError } from "../utils";
+import {
+  FollowEntity,
+  FollowRepository,
+} from "../repositories/follow.repository";
+import { UserEntity } from "../repositories/user.repository";
 
 export class FollowService {
-  constructor() {}
+  constructor(private followRepository: FollowRepository) {}
 
   public async follow(dto: FollowDto): Promise<void> {
-    // Um usuário não pode seguir ele mesmo
     if (dto.followerId === dto.followingId) {
       throw new HTTPError(400, "You cannot follow yourself");
     }
 
-    // Um usuário não pode seguir o mesmo usuário mais de uma vez
-    const existingFollow = await prismaRepository.follow.findUnique({
-      where: {
-        followerId_followingId: {
-          followerId: dto.followerId,
-          followingId: dto.followingId,
-        },
-      },
-    });
+    const existingFollow = await this.followRepository.findUnique(
+      dto.followerId,
+      dto.followingId,
+    );
 
     if (existingFollow) {
       throw new HTTPError(409, "You are already following this user");
     }
 
-    await prismaRepository.follow.create({
-      data: {
-        followerId: dto.followerId,
-        followingId: dto.followingId,
-      },
-    });
+    await this.followRepository.create(dto.followerId, dto.followingId);
   }
 
   public async unfollow(dto: FollowDto): Promise<void> {
-    // Um usuário não pode deixar de seguir ele mesmo
     if (dto.followerId === dto.followingId) {
       throw new HTTPError(400, "Follower and following IDs cannot be the same");
     }
 
-    // Verifica se o follow existe antes de tentar remover
-    const existingFollow = await prismaRepository.follow.findUnique({
-      where: {
-        followerId_followingId: {
-          followerId: dto.followerId,
-          followingId: dto.followingId,
-        },
-      },
-    });
+    const existingFollow = await this.followRepository.findUnique(
+      dto.followerId,
+      dto.followingId,
+    );
 
     if (!existingFollow) {
       throw new HTTPError(404, "You are not following this user");
     }
 
-    await prismaRepository.follow.delete({
-      where: {
-        followerId_followingId: {
-          followerId: dto.followerId,
-          followingId: dto.followingId,
-        },
-      },
-    });
+    await this.followRepository.delete(dto.followerId, dto.followingId);
   }
 
   public async listFollowings(
@@ -78,23 +56,13 @@ export class FollowService {
   }
 
   private async listFollowersByUserId(userId: string): Promise<User[]> {
-    // Busca na tabela de follows os usuários que seguem o userId
-    const followersDB = await prismaRepository.follow.findMany({
-      where: { followingId: userId },
-      orderBy: { createdAt: "desc" },
-      include: { follower: true },
-    });
+    const followersDB = await this.followRepository.findManyFollowers(userId);
 
     return followersDB.map((user) => this.mapToModel(user.follower));
   }
 
   private async listFollowingsByUserId(userId: string): Promise<User[]> {
-    // Busca na tabela de follows os usuários que seguem o userId
-    const followingsDB = await prismaRepository.follow.findMany({
-      where: { followerId: userId },
-      orderBy: { createdAt: "desc" },
-      include: { following: true },
-    });
+    const followingsDB = await this.followRepository.findManyFollowings(userId);
 
     return followingsDB.map((user) => this.mapToModel(user.following));
   }

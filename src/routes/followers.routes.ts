@@ -1,13 +1,13 @@
 import express from "express";
 import { body } from "express-validator";
 
-import { FollowersController } from "../controllers";
+import { FollowFactory } from "../factories";
 import { authMiddleware, dataValidation } from "../middlewares";
 
 export class FollowersRoutes {
   public static bind() {
     const router = express.Router();
-    const controller = new FollowersController();
+    const controller = FollowFactory.createController();
 
     router.post(
       "/followers",

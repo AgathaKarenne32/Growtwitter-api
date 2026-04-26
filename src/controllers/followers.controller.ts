@@ -4,14 +4,14 @@ import { FollowService } from "../services";
 import { onError } from "../utils";
 
 export class FollowersController {
-  public async followUp(req: Request, res: Response) {
+  constructor(private followService: FollowService) {}
+
+  public followUp = async (req: Request, res: Response) => {
     try {
       const authorId = req.user.id;
       const { userId } = req.body;
 
-      const service = new FollowService();
-
-      await service.follow({
+      await this.followService.follow({
         followerId: authorId,
         followingId: userId,
       });
@@ -23,16 +23,14 @@ export class FollowersController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 
-  public async unfollow(req: Request, res: Response) {
+  public unfollow = async (req: Request, res: Response) => {
     try {
       const authorId = req.user.id;
       const { userId } = req.body;
 
-      const service = new FollowService();
-
-      await service.unfollow({
+      await this.followService.unfollow({
         followerId: authorId,
         followingId: userId,
       });
@@ -44,15 +42,13 @@ export class FollowersController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 
-  public async getFollowers(req: Request, res: Response) {
+  public getFollowers = async (req: Request, res: Response) => {
     try {
       const authorId = req.user.id;
 
-      const service = new FollowService();
-
-      const result = await service.listFollowings(authorId);
+      const result = await this.followService.listFollowings(authorId);
 
       const data = {
         followers: result.followers.map((f) => f.toJSON()),
@@ -67,5 +63,5 @@ export class FollowersController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 }

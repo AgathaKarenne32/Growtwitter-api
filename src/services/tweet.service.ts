@@ -1,7 +1,4 @@
-import { Tweet as TweetEntity, TweetType } from "@prisma/client";
-
 import { LikeService } from ".";
-import prismaRepository from "../database/prisma.repository";
 import {
   CreateReplyDto,
   CreateTweetDto,
@@ -11,56 +8,43 @@ import {
 } from "../dtos";
 import { Tweet, User } from "../models";
 import { HTTPError } from "../utils";
+import { TweetEntity, TweetRepository, TweetType } from "../repositories/tweet.repository";
+import { UserEntity } from "../repositories/user.repository";
 
 export class TweetService {
-  constructor(private likeService: LikeService) {}
+  constructor(
+    private tweetRepository: TweetRepository,
+    private likeService: LikeService,
+  ) {}
 
   public async createTweet(dto: CreateTweetDto): Promise<Tweet> {
-    const newTweet = await prismaRepository.tweet.create({
-      data: { content: dto.content, authorId: dto.authorId },
-      include: { author: true },
-    });
+    const newTweet = await this.tweetRepository.create(dto);
 
     return this.mapToModel(newTweet);
   }
 
   public async createReply(dto: CreateReplyDto): Promise<Tweet> {
-    const newReply = await prismaRepository.$transaction(async (prisma) => {
-      const tweet = await prisma.tweet.findUnique({
-        where: { id: dto.replyTo },
-      });
+    const tweet = await this.tweetRepository.findUnique(dto.replyTo);
 
-      if (!tweet) {
-        throw new HTTPError(404, "Tweet to reply not found");
-      }
+    if (!tweet) {
+      throw new HTTPError(404, "Tweet to reply not found");
+    }
 
-      if (tweet.type === TweetType.REPLY) {
-        throw new HTTPError(409, "Cannot reply to a reply");
-      }
+    if (tweet.type === TweetType.REPLY) {
+      throw new HTTPError(409, "Cannot reply to a reply");
+    }
 
-      const newTweetReply = await prisma.tweet.create({
-        data: {
-          content: dto.content,
-          authorId: dto.authorId,
-          type: TweetType.REPLY,
-        },
-      });
-
-      await prisma.reply.create({
-        data: { tweetId: dto.replyTo, replyId: newTweetReply.id },
-      });
-
-      return newTweetReply;
-    });
+    const newReply = await this.tweetRepository.createReply(
+      dto.content,
+      dto.authorId,
+      dto.replyTo,
+    );
 
     return this.mapToModel(newReply);
   }
 
   public async findTweet(dto: FindTweetDto): Promise<Tweet> {
-    const tweetDB = await prismaRepository.tweet.findUnique({
-      where: { id: dto.tweetId },
-      include: { author: true },
-    });
+    const tweetDB = await this.tweetRepository.findUniqueWithAuthor(dto.tweetId);
 
     if (!tweetDB) {
       throw new HTTPError(404, "Tweet not found");
@@ -92,10 +76,10 @@ export class TweetService {
       throw new HTTPError(403, "You are not allowed to update this tweet");
     }
 
-    const tweetUpdated = await prismaRepository.tweet.update({
-      where: { id: dto.tweetId },
-      data: { content: dto.content },
-    });
+    const tweetUpdated = await this.tweetRepository.update(
+      dto.tweetId,
+      dto.content,
+    );
 
     return this.mapToModel(tweetUpdated);
   }
@@ -107,19 +91,13 @@ export class TweetService {
       throw new HTTPError(403, "You are not allowed to delete this tweet");
     }
 
-    const tweetDeleted = await prismaRepository.tweet.delete({
-      where: { id: dto.tweetId },
-    });
+    const tweetDeleted = await this.tweetRepository.delete(dto.tweetId);
 
     return this.mapToModel(tweetDeleted);
   }
 
   public async listTweetsByUserId(userId: string): Promise<Tweet[]> {
-    const tweetsDB = await prismaRepository.tweet.findMany({
-      where: { type: TweetType.NORMAL, authorId: userId },
-      orderBy: { createdAt: "desc" },
-      include: { author: true },
-    });
+    const tweetsDB = await this.tweetRepository.findManyByUserId(userId);
 
     const tweets: Tweet[] = [];
 
@@ -147,10 +125,7 @@ export class TweetService {
   }
 
   private async listRepliesByTweetId(tweetId: string): Promise<Tweet[]> {
-    const repliesDB = await prismaRepository.reply.findMany({
-      where: { tweetId },
-      include: { reply: { include: { author: true } } },
-    });
+    const repliesDB = await this.tweetRepository.listRepliesByTweetId(tweetId);
 
     const replies: Tweet[] = [];
 
@@ -183,20 +158,7 @@ export class TweetService {
   }
 
   public async feed(userId: string) {
-    const tweetsDB = await prismaRepository.tweet.findMany({
-      where: {
-        type: TweetType.NORMAL,
-        author: {
-          followedBy: {
-            some: {
-              followerId: userId,
-            },
-          },
-        },
-      },
-      include: { author: true },
-      orderBy: { createdAt: "desc" },
-    });
+    const tweetsDB = await this.tweetRepository.feed(userId);
 
     const tweets: Tweet[] = [];
 
