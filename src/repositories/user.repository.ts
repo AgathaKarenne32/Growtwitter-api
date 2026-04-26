@@ -1,7 +1,15 @@
-import { User as UserEntity } from "@prisma/client";
-
 import prismaRepository from "../database/prisma.repository";
 import { CreateUserDto } from "../dtos/user.dto";
+
+export interface UserEntity {
+  id: string;
+  name: string;
+  imageUrl: string | null;
+  username: string;
+  password: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export class UserRepository {
   public async findByUsername(username: string): Promise<UserEntity | null> {

@@ -22,7 +22,7 @@ export class UsersController {
 
   public getById = async (req: Request, res: Response) => {
     try {
-      const { userId } = req.params;
+      const userId = req.params.userId as string;
       const result = await this.userService.getById(userId);
 
       res.status(200).json({

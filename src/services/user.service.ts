@@ -1,9 +1,7 @@
-import { User as UserEntity } from "@prisma/client";
-
 import { FollowService, TweetService } from ".";
 import { CreateUserDto } from "../dtos/user.dto";
 import { User } from "../models";
-import { UserRepository } from "../repositories/user.repository";
+import { UserEntity, UserRepository } from "../repositories/user.repository";
 import { HTTPError } from "../utils";
 
 export class UserService {
