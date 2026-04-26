@@ -1,22 +1,14 @@
 import { Request, Response } from "express";
 
-import {
-  FollowService,
-  LikeService,
-  TweetService,
-  UserService,
-} from "../services";
+import { UserService } from "../services";
 import { onError } from "../utils";
 
 export class UsersController {
-  public async index(_: Request, res: Response) {
-    try {
-      const service = new UserService(
-        new TweetService(new LikeService()),
-        new FollowService(),
-      );
+  constructor(private userService: UserService) {}
 
-      const result = await service.listAll();
+  public index = async (_: Request, res: Response) => {
+    try {
+      const result = await this.userService.listAll();
 
       res.status(200).json({
         success: true,
@@ -26,18 +18,12 @@ export class UsersController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 
-  public async getById(req: Request, res: Response) {
+  public getById = async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
-
-      const service = new UserService(
-        new TweetService(new LikeService()),
-        new FollowService(),
-      );
-
-      const result = await service.getById(userId);
+      const result = await this.userService.getById(userId);
 
       res.status(200).json({
         success: true,
@@ -47,5 +33,5 @@ export class UsersController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 }

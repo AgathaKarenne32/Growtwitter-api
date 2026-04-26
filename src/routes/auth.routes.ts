@@ -1,13 +1,13 @@
 import express from "express";
 import { body } from "express-validator";
 
-import { AuthController } from "../controllers";
+import { AuthFactory } from "../factories";
 import { dataValidation } from "../middlewares";
 
 export class AuthRoutes {
   public static bind() {
     const router = express.Router();
-    const controller = new AuthController();
+    const controller = AuthFactory.createController();
 
     router.post(
       "/auth/login",

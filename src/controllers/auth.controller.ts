@@ -1,29 +1,16 @@
 import { Request, Response } from "express";
 
-import { BcryptAdapter } from "../adapters";
-import {
-  UserService,
-  AuthService,
-  TweetService,
-  FollowService,
-  LikeService,
-} from "../services";
+import { AuthService } from "../services";
 import { onError } from "../utils";
 
 export class AuthController {
-  public async register(req: Request, res: Response) {
+  constructor(private authService: AuthService) {}
+
+  public register = async (req: Request, res: Response) => {
     try {
       const { name, username, password, imageUrl } = req.body;
 
-      const service = new AuthService(
-        new UserService(
-          new TweetService(new LikeService()),
-          new FollowService(),
-        ),
-        new BcryptAdapter(),
-      );
-
-      const result = await service.register({
+      const result = await this.authService.register({
         name,
         username,
         password,
@@ -38,21 +25,13 @@ export class AuthController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 
-  public async login(req: Request, res: Response) {
+  public login = async (req: Request, res: Response) => {
     try {
       const { username, password } = req.body;
 
-      const service = new AuthService(
-        new UserService(
-          new TweetService(new LikeService()),
-          new FollowService(),
-        ),
-        new BcryptAdapter(),
-      );
-
-      const result = await service.login({ username, password });
+      const result = await this.authService.login({ username, password });
 
       res.status(200).json({
         success: true,
@@ -62,5 +41,5 @@ export class AuthController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 }

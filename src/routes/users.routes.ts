@@ -1,13 +1,13 @@
 import express from "express";
 import { param } from "express-validator";
 
-import { UsersController } from "../controllers";
+import { UserFactory } from "../factories";
 import { authMiddleware, dataValidation } from "../middlewares";
 
 export class UsersRoutes {
   public static bind() {
     const router = express.Router();
-    const controller = new UsersController();
+    const controller = UserFactory.createController();
 
     router.get("/users", controller.index);
 
