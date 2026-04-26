@@ -1,0 +1,10 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: agatha
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: growtwitter
+    ports:
+      - "5433:5432" # Mudamos aqui!
