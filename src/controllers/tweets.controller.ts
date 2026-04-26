@@ -1,17 +1,17 @@
 import { Request, Response } from "express";
 
-import { TweetService, LikeService } from "../services";
+import { TweetService } from "../services";
 import { onError } from "../utils";
 
 export class TweetsController {
-  public async createTweet(req: Request, res: Response) {
+  constructor(private tweetService: TweetService) {}
+
+  public createTweet = async (req: Request, res: Response) => {
     try {
       const authorId = req.user.id;
       const { content } = req.body;
 
-      const service = new TweetService(new LikeService());
-
-      const result = await service.createTweet({
+      const result = await this.tweetService.createTweet({
         authorId,
         content,
       });
@@ -24,16 +24,18 @@ export class TweetsController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 
-  public async createReply(req: Request, res: Response) {
+  public createReply = async (req: Request, res: Response) => {
     try {
       const authorId = req.user.id;
       const { content, replyTo } = req.body;
 
-      const service = new TweetService(new LikeService());
-
-      const result = await service.createReply({ authorId, content, replyTo });
+      const result = await this.tweetService.createReply({
+        authorId,
+        content,
+        replyTo,
+      });
 
       res.status(201).json({
         success: true,
@@ -43,16 +45,14 @@ export class TweetsController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 
-  public async findTweet(req: Request, res: Response) {
+  public findTweet = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
 
-      const service = new TweetService(new LikeService());
-
-      const result = await service.findTweet({
-        tweetId: id,
+      const result = await this.tweetService.findTweet({
+        tweetId: id as string,
       });
 
       res.status(200).json({
@@ -63,19 +63,17 @@ export class TweetsController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 
-  public async updateTweet(req: Request, res: Response) {
+  public updateTweet = async (req: Request, res: Response) => {
     try {
       const authorId = req.user.id;
       const { id } = req.params;
       const { content } = req.body;
 
-      const service = new TweetService(new LikeService());
-
-      const result = await service.updateTweet({
+      const result = await this.tweetService.updateTweet({
         authorId,
-        tweetId: id,
+        tweetId: id as string,
         content,
       });
 
@@ -87,18 +85,16 @@ export class TweetsController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 
-  public async deleteTweet(req: Request, res: Response) {
+  public deleteTweet = async (req: Request, res: Response) => {
     try {
       const authorId = req.user.id;
       const { id } = req.params;
 
-      const service = new TweetService(new LikeService());
-
-      const result = await service.deleteTweet({
+      const result = await this.tweetService.deleteTweet({
         authorId,
-        tweetId: id,
+        tweetId: id as string,
       });
 
       res.status(200).json({
@@ -109,15 +105,13 @@ export class TweetsController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 
-  public async listTweetsByUserId(req: Request, res: Response) {
+  public listTweetsByUserId = async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
 
-      const service = new TweetService(new LikeService());
-
-      const result = await service.listTweetsByUserId(userId);
+      const result = await this.tweetService.listTweetsByUserId(userId as string);
 
       res.status(200).json({
         success: true,
@@ -127,15 +121,13 @@ export class TweetsController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 
-  public async feed(req: Request, res: Response) {
+  public feed = async (req: Request, res: Response) => {
     try {
       const { id } = req.user;
 
-      const service = new TweetService(new LikeService());
-
-      const result = await service.feed(id);
+      const result = await this.tweetService.feed(id);
 
       res.status(200).json({
         success: true,
@@ -145,5 +137,5 @@ export class TweetsController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 }

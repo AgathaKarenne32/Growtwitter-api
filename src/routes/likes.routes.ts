@@ -1,13 +1,13 @@
 import express from "express";
 import { body } from "express-validator";
 
-import { LikesController } from "../controllers";
+import { LikeFactory } from "../factories";
 import { authMiddleware, dataValidation } from "../middlewares";
 
 export class LikesRoutes {
   public static bind() {
     const router = express.Router();
-    const controller = new LikesController();
+    const controller = LikeFactory.createController();
 
     router.post(
       "/likes",

@@ -4,14 +4,14 @@ import { LikeService } from "../services";
 import { onError } from "../utils";
 
 export class LikesController {
-  public async like(req: Request, res: Response) {
+  constructor(private likeService: LikeService) {}
+
+  public like = async (req: Request, res: Response) => {
     try {
       const authorId = req.user.id;
       const { tweetId } = req.body;
 
-      const service = new LikeService();
-
-      await service.createLike({
+      await this.likeService.createLike({
         authorId,
         tweetId,
       });
@@ -23,16 +23,14 @@ export class LikesController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 
-  public async dislike(req: Request, res: Response) {
+  public dislike = async (req: Request, res: Response) => {
     try {
       const authorId = req.user.id;
       const { tweetId } = req.body;
 
-      const service = new LikeService();
-
-      await service.removeLike({
+      await this.likeService.removeLike({
         authorId,
         tweetId,
       });
@@ -44,5 +42,5 @@ export class LikesController {
     } catch (error) {
       onError(error, res);
     }
-  }
+  };
 }

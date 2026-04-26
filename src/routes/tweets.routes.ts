@@ -1,13 +1,13 @@
 import express from "express";
 import { body, param } from "express-validator";
 
-import { TweetsController } from "../controllers";
+import { TweetFactory } from "../factories";
 import { authMiddleware, dataValidation } from "../middlewares";
 
 export class TweetsRoutes {
   public static bind() {
     const router = express.Router();
-    const controller = new TweetsController();
+    const controller = TweetFactory.createController();
 
     router.post(
       "/tweets",

@@ -1,78 +1,58 @@
-import { User as UserEntity, Like as LikeEntity } from "@prisma/client";
-
-import prismaRepository from "../database/prisma.repository";
 import { CreateLikeDto } from "../dtos";
 import { Like, User } from "../models";
 import { HTTPError } from "../utils";
+import { LikeEntity, LikeRepository } from "../repositories/like.repository";
+import { UserEntity } from "../repositories/user.repository";
+import { TweetRepository } from "../repositories/tweet.repository";
 
 export class LikeService {
+  constructor(
+    private likeRepository: LikeRepository,
+    private tweetRepository: TweetRepository,
+  ) {}
+
   public async listLikesByTweetId(tweetId: string): Promise<Like[]> {
-    const likes = await prismaRepository.like.findMany({
-      where: { tweetId },
-      include: { author: true },
-    });
+    const likes = await this.likeRepository.findManyByTweetId(tweetId);
 
     return likes.map((l) => this.mapToModel(l));
   }
 
   public async createLike(dto: CreateLikeDto): Promise<void> {
-    const tweet = await prismaRepository.tweet.findUnique({
-      where: { id: dto.tweetId },
-    });
+    const tweet = await this.tweetRepository.findUnique(dto.tweetId);
 
     if (!tweet) {
       throw new HTTPError(404, "Tweet not found.");
     }
 
-    const likeAlreadyExists = await prismaRepository.like.findUnique({
-      where: {
-        tweetId_authorId: {
-          tweetId: dto.tweetId,
-          authorId: dto.authorId,
-        },
-      },
-    });
+    const likeAlreadyExists = await this.likeRepository.findUnique(
+      dto.tweetId,
+      dto.authorId,
+    );
 
     if (likeAlreadyExists) {
       throw new HTTPError(409, "Tweet already likes for you.");
     }
 
-    await prismaRepository.like.create({
-      data: { authorId: dto.authorId, tweetId: dto.tweetId },
-      include: { author: true },
-    });
+    await this.likeRepository.create(dto);
   }
 
   public async removeLike(dto: CreateLikeDto): Promise<void> {
-    const tweet = await prismaRepository.tweet.findUnique({
-      where: { id: dto.tweetId },
-    });
+    const tweet = await this.tweetRepository.findUnique(dto.tweetId);
 
     if (!tweet) {
       throw new HTTPError(404, "Tweet not found.");
     }
 
-    const likeFound = await prismaRepository.like.findUnique({
-      where: {
-        tweetId_authorId: {
-          tweetId: dto.tweetId,
-          authorId: dto.authorId,
-        },
-      },
-    });
+    const likeFound = await this.likeRepository.findUnique(
+      dto.tweetId,
+      dto.authorId,
+    );
 
     if (!likeFound) {
       throw new HTTPError(404, "Tweet not likes for you.");
     }
 
-    await prismaRepository.like.delete({
-      where: {
-        tweetId_authorId: {
-          authorId: dto.authorId,
-          tweetId: dto.tweetId,
-        },
-      },
-    });
+    await this.likeRepository.delete(dto.tweetId, dto.authorId);
   }
 
   private mapToModel(entity: LikeEntity & { author: UserEntity }): Like {
