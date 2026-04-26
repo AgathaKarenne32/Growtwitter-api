@@ -1,5 +1,8 @@
+import "express-async-errors";
 import cors from "cors";
 import express from "express";
+
+import { errorHandler } from "./middlewares";
 
 class App {
   public app: express.Application;
@@ -11,6 +14,7 @@ class App {
 
     this.initializeMiddlewares();
     this.initializeControllers(routers);
+    this.initializeErrorHandling();
   }
 
   private initializeMiddlewares() {
@@ -22,6 +26,10 @@ class App {
     routers.forEach((router) => {
       this.app.use(router);
     });
+  }
+
+  private initializeErrorHandling() {
+    this.app.use(errorHandler);
   }
 
   public listen() {
