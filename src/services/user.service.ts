@@ -1,23 +1,20 @@
 import { User as UserEntity } from "@prisma/client";
 
 import { FollowService, TweetService } from ".";
-import prismaRepository from "../database/prisma.repository";
 import { CreateUserDto } from "../dtos/user.dto";
 import { User } from "../models";
+import { UserRepository } from "../repositories/user.repository";
 import { HTTPError } from "../utils";
 
 export class UserService {
   constructor(
+    private userRepository: UserRepository,
     private tweetService: TweetService,
     private followService: FollowService,
   ) {}
 
   public async findByUsername(username: string): Promise<User | null> {
-    const user = await prismaRepository.user.findUnique({
-      where: {
-        username,
-      },
-    });
+    const user = await this.userRepository.findByUsername(username);
 
     if (!user) return null;
 
@@ -25,24 +22,13 @@ export class UserService {
   }
 
   public async create(dto: CreateUserDto): Promise<User> {
-    const newUser = await prismaRepository.user.create({
-      data: {
-        name: dto.name,
-        imageUrl: dto.imageUrl,
-        username: dto.username,
-        password: dto.password,
-      },
-    });
+    const newUser = await this.userRepository.create(dto);
 
     return this.mapToModel(newUser);
   }
 
   public async getById(userId: string): Promise<User> {
-    const userDB = await prismaRepository.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
+    const userDB = await this.userRepository.getById(userId);
 
     if (!userDB) {
       throw new HTTPError(404, "User not found");
@@ -61,7 +47,7 @@ export class UserService {
   }
 
   public async listAll(): Promise<User[]> {
-    const users = await prismaRepository.user.findMany();
+    const users = await this.userRepository.listAll();
 
     return users.map((user) => this.mapToModel(user));
   }
