@@ -1,37 +1,28 @@
-import { Request, Response, NextFunction } from "express";
-import { ContextRunner, FieldValidationError } from "express-validator";
+import { NextFunction, Request, Response } from "express";
+import { ZodObject, ZodError } from "zod";
+import { HTTPError } from "../utils/http.error";
+import { AnyZodObject } from "zod/v3";
 
-import { HTTPError, onError } from "../utils";
-
-export function dataValidation(validations: ContextRunner[]) {
+export const dataValidationMiddleware = (schema: AnyZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      let errors: FieldValidationError[] = [];
-
-      for (const validation of validations) {
-        const result = await validation.run(req);
-
-        if (!result.isEmpty()) {
-          errors = [...errors, ...(result.array() as FieldValidationError[])];
-        }
-      }
-
-      if (errors.length) {
-        throw new HTTPError(
-          400,
-          "Requisição inválida",
-          errors.map((e) => ({
-            type: e.type,
-            field: e.path,
-            location: e.location,
-            description: e.msg,
-          })),
-        );
-      }
-
-      next();
+      // Valida o body, query e params conforme definido no schema
+      await schema.parseAsync({
+        body: req.body,
+        query: req.query,
+        params: req.params,
+      });
+      return next();
     } catch (error) {
-      onError(error, res);
+      if (error instanceof ZodError) {
+        // Mapeia os erros do Zod para uma mensagem legível
+        const errorMessage = error.issues
+          .map((err: { path: any[]; message: any; }) => `${err.path.join(".")}: ${err.message}`)
+          .join(", ");
+        
+        throw new HTTPError(400, errorMessage);
+      }
+      return next(error);
     }
   };
-}
+};
