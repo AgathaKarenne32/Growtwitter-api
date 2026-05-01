@@ -1,51 +1,23 @@
 import { Request, Response } from "express";
-
-import {
-  FollowService,
-  LikeService,
-  TweetService,
-  UserService,
-} from "../services";
-import { onError } from "../utils";
+import { UserService } from "../services/user.service";
 
 export class UsersController {
-  public async index(_: Request, res: Response) {
-    try {
-      const service = new UserService(
-        new TweetService(new LikeService()),
-        new FollowService(),
-      );
+  constructor(private userService: UserService) {}
 
-      const result = await service.listAll();
+  public getAll = async (req: Request, res: Response) => {
+    const users = await this.userService.getAll();
+    res.status(200).json({
+      success: true,
+      data: users.map(u => u.toJSON())
+    });
+  };
 
-      res.status(200).json({
-        success: true,
-        message: "Records listed successfully.",
-        data: result.map((u) => u.toJSON()),
-      });
-    } catch (error) {
-      onError(error, res);
-    }
-  }
-
-  public async getById(req: Request, res: Response) {
-    try {
-      const { userId } = req.params;
-
-      const service = new UserService(
-        new TweetService(new LikeService()),
-        new FollowService(),
-      );
-
-      const result = await service.getById(userId);
-
-      res.status(200).json({
-        success: true,
-        message: "Record found successfully.",
-        data: result.toJSON(),
-      });
-    } catch (error) {
-      onError(error, res);
-    }
-  }
+  public getById = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const user = await this.userService.getById(id);
+    res.status(200).json({
+      success: true,
+      data: user.toJSON()
+    });
+  };
 }
