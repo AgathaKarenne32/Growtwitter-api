@@ -25,11 +25,11 @@ export class UserService {
     return this.mapToModel(newUser);
   }
 
+  
   public async getById(userId: string): Promise<User> {
-    const userDB = await this.userRepository.getById(userId);
-
+    const userDB = await this.userRepository.findById(userId);
     if (!userDB) {
-      throw new HTTPError(404, "User not found");
+      throw new Error('User not found');
     }
 
     const user = this.mapToModel(userDB);
@@ -45,9 +45,9 @@ export class UserService {
   }
 
   public async listAll(): Promise<User[]> {
-    const users = await this.userRepository.listAll();
+    const users = await this.userRepository.findAll();
 
-    return users.map((user) => this.mapToModel(user));
+    return users.map((user: { id: string; name: string; imageUrl: string | null; username: string; password: string; createdAt: Date; updatedAt: Date; }) => this.mapToModel(user));
   }
 
   private mapToModel(entity: UserEntity): User {
