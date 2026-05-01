@@ -1,11 +1,12 @@
 {
-  "name": "api-portal-empresas",
+  "name": "growtwitter-api",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
     "build": "tsc",
     "start": "node ./build/server.js",
+    "db:migrate": "prisma migrate deploy", 
     "test": "jest",
     "test:watch": "jest --watchAll",
     "eslint:check": "npx eslint .",
@@ -16,7 +17,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Backend de uma rede social robusta com Clean Architecture e TypeScript",
   "dependencies": {
     "@prisma/client": "^6.1.0",
     "bcrypt": "^5.1.1",
