@@ -25,7 +25,7 @@ Uma API REST para uma rede social similar ao Twitter, desenvolvida com Node.js, 
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/academygrowdev-leticialeal/growtwitter-api.git
+   git clone https://github.com/AgathaKarenne32/Growtwitter-api.git
    cd growtwitter-api
    ```
 
