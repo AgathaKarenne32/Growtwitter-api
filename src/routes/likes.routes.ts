@@ -2,7 +2,7 @@ import express from "express";
 import { body } from "express-validator";
 
 import { LikeFactory } from "../factories";
-import { authMiddleware, dataValidation } from "../middlewares";
+import { authMiddleware } from "../middlewares";
 
 export class LikesRoutes {
   public static bind() {
@@ -12,14 +12,14 @@ export class LikesRoutes {
     router.post(
       "/likes",
       authMiddleware,
-      dataValidation([body("tweetId").isString().isUUID()]),
+      body("tweetId").isString().isUUID(),
       controller.like,
     );
 
     router.delete(
       "/likes",
       authMiddleware,
-      dataValidation([body("tweetId").isString().isUUID()]),
+      body("tweetId").isString().isUUID(),
       controller.dislike,
     );
 
