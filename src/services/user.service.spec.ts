@@ -1,3 +1,4 @@
+/// <reference types="jest" />
 import { UserService } from "./user.service";
 import { IUserRepository } from "../interfaces/user-repository.interface";
 
