@@ -1,8 +1,13 @@
 import express from "express";
-import { body } from "express-validator";
-
 import { LikeFactory } from "../factories";
-import { authMiddleware, dataValidation } from "../middlewares";
+import { authMiddleware, dataValidationMiddleware } from "../middlewares";
+import { z } from "zod";
+
+const tweetIdBodySchema = z.object({
+  body: z.object({
+    tweetId: z.string().uuid(),
+  }),
+});
 
 export class LikesRoutes {
   public static bind() {
@@ -12,14 +17,14 @@ export class LikesRoutes {
     router.post(
       "/likes",
       authMiddleware,
-      dataValidation([body("tweetId").isString().isUUID()]),
+      dataValidationMiddleware(tweetIdBodySchema),
       controller.like,
     );
 
     router.delete(
       "/likes",
       authMiddleware,
-      dataValidation([body("tweetId").isString().isUUID()]),
+      dataValidationMiddleware(tweetIdBodySchema),
       controller.dislike,
     );
 

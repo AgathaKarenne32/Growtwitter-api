@@ -1,8 +1,7 @@
 import express from "express";
-import { body, param } from "express-validator";
-
 import { TweetFactory } from "../factories";
-import { authMiddleware, dataValidation } from "../middlewares";
+import { authMiddleware, dataValidationMiddleware } from "../middlewares";
+import { createTweetSchema, tweetIdSchema } from "../dtos/tweet/tweet.schema"; // Importe os schemas criados
 
 export class TweetsRoutes {
   public static bind() {
@@ -12,52 +11,16 @@ export class TweetsRoutes {
     router.post(
       "/tweets",
       authMiddleware,
-      dataValidation([body("content").isString().isLength({ min: 1 })]),
+      dataValidationMiddleware(createTweetSchema),
       controller.createTweet,
-    );
-
-    router.post(
-      "/replies",
-      authMiddleware,
-      dataValidation([
-        body("content").isString().isLength({ min: 1 }),
-        body("replyTo").isString().isUUID(),
-      ]),
-      controller.createReply,
-    );
-
-    router.get(
-      "/tweets/:id",
-      authMiddleware,
-      dataValidation([param("id").isUUID()]),
-      controller.findTweet,
-    );
-
-    router.put(
-      "/tweets/:id",
-      authMiddleware,
-      dataValidation([
-        param("id").isUUID(),
-        body("content").isString().isLength({ min: 1 }),
-      ]),
-      controller.updateTweet,
     );
 
     router.delete(
       "/tweets/:id",
       authMiddleware,
-      dataValidation([param("id").isUUID()]),
+      dataValidationMiddleware(tweetIdSchema),
       controller.deleteTweet,
     );
-
-    router.get(
-      "/users/:userId/tweets",
-      authMiddleware,
-      dataValidation([param("userId").isUUID()]),
-      controller.listTweetsByUserId,
-    );
-
-    router.get("/feed", authMiddleware, controller.feed);
 
     return router;
   }
