@@ -13,7 +13,7 @@ export class UsersController {
   };
 
   public getById = async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const user = await this.userService.getById(id);
     res.status(200).json({
       success: true,
