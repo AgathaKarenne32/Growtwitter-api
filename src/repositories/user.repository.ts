@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import prismaRepository from "../database/prisma.repository";
 import { CreateUserDto } from "../dtos/user.dto";
 
@@ -12,6 +13,14 @@ export interface UserEntity {
 }
 
 export class UserRepository {
+  public async findById(id: string): Promise<UserEntity | null> {
+    return await prismaRepository.user.findUnique({ where: { id } });
+  }
+
+  public async findAll(): Promise<UserEntity[]> {
+    return await prismaRepository.user.findMany();
+  }
+
   public async findByUsername(username: string): Promise<UserEntity | null> {
     return await prismaRepository.user.findUnique({
       where: {

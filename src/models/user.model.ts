@@ -12,16 +12,15 @@ export interface UserDto {
   followers?: UserDto[];
   following?: UserDto[];
 }
-
 export class User {
   constructor(
-    private id: string,
-    private name: string,
-    private imageUrl: string | null,
-    private username: string,
-    private createdAt: Date,
-    private updatedAt: Date,
-    private password?: string,
+    public readonly id: string, 
+    public readonly name: string, 
+    public readonly imageUrl: string | null,
+    public readonly username: string,
+    public readonly createdAt: Date,
+    public readonly updatedAt: Date,
+    private password?: string, 
     private tweets?: Tweet[],
     private followers?: User[],
     private following?: User[],
