@@ -1,8 +1,14 @@
 import "express-async-errors";
 import cors from "cors";
 import express from "express";
-
 import { errorHandler } from "./middlewares";
+import { 
+  AuthRoutes, 
+  UsersRoutes, 
+  TweetsRoutes, 
+  LikesRoutes, 
+  FollowersRoutes 
+} from "./routes"; // Certifique-se de importar suas classes de rotas
 
 class App {
   public app: express.Application;
@@ -23,6 +29,9 @@ class App {
   }
 
   private initializeControllers(routers: express.Router[]) {
+    // Rota base para verificar se a API está online
+    this.app.get("/", (req, res) => res.send("Growtwitter API is running!"));
+    
     routers.forEach((router) => {
       this.app.use(router);
     });
@@ -34,10 +43,20 @@ class App {
 
   public listen() {
     this.app.listen(this.port, () => {
-      // eslint-disable-next-line no-console
       console.log(`App listening on the port ${this.port}`);
     });
   }
 }
 
+// Criamos a lista de rotas reais chamando os métodos estáticos bind()
+const routers = [
+  AuthRoutes.bind(),
+  UsersRoutes.bind(),
+  TweetsRoutes.bind(),
+  LikesRoutes.bind(),
+  FollowersRoutes.bind(),
+];
+
+// Exportamos apenas a instância do express para o supertest usar
+export const app = new App(routers, 3000).app; 
 export default App;

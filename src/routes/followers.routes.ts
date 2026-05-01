@@ -1,8 +1,13 @@
 import express from "express";
-import { body } from "express-validator";
-
+import { z } from "zod"; // Importamos o Zod
 import { FollowFactory } from "../factories";
-import { authMiddleware, dataValidation } from "../middlewares";
+import { authMiddleware, dataValidationMiddleware } from "../middlewares"; 
+
+const followSchema = z.object({
+  body: z.object({
+    userId: z.string().uuid("Invalid User ID format"), 
+  }),
+});
 
 export class FollowersRoutes {
   public static bind() {
@@ -12,14 +17,14 @@ export class FollowersRoutes {
     router.post(
       "/followers",
       authMiddleware,
-      dataValidation([body("userId").isString().isUUID()]),
+      dataValidationMiddleware(followSchema), 
       controller.followUp,
     );
 
     router.delete(
       "/followers",
       authMiddleware,
-      dataValidation([body("userId").isString().isUUID()]),
+      dataValidationMiddleware(followSchema),
       controller.unfollow,
     );
 
