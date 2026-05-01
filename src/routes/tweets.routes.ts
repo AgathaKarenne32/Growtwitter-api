@@ -1,7 +1,7 @@
 import express from "express";
 import { TweetFactory } from "../factories";
-import { authMiddleware, dataValidationMiddleware } from "../middlewares"; // Importando o novo
-import { createTweetSchema, tweetIdSchema } from "../dtos/tweet/tweet.schema";
+import { authMiddleware, dataValidationMiddleware } from "../middlewares";
+import { createTweetSchema, tweetIdSchema } from "../dtos/tweet/tweet.schema"; // Importe os schemas criados
 
 export class TweetsRoutes {
   public static bind() {
@@ -11,18 +11,17 @@ export class TweetsRoutes {
     router.post(
       "/tweets",
       authMiddleware,
-      dataValidationMiddleware(createTweetSchema), // Usando Zod
+      dataValidationMiddleware(createTweetSchema),
       controller.createTweet,
     );
 
-    router.get(
+    router.delete(
       "/tweets/:id",
       authMiddleware,
-      dataValidationMiddleware(tweetIdSchema), // Usando Zod
-      controller.findTweet,
+      dataValidationMiddleware(tweetIdSchema),
+      controller.deleteTweet,
     );
 
-    // ... Repita para as outras rotas usando os schemas correspondentes
     return router;
   }
 }

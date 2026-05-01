@@ -11,6 +11,7 @@ export class UserService {
     private followService: FollowService,
   ) {}
 
+<<<<<<< feature/data-validation-zod
   public async findByUsername(username: string): Promise<User | null> {
     const user = await this.userRepository.findByUsername(username);
 
@@ -28,6 +29,12 @@ export class UserService {
   
   public async getById(userId: string): Promise<User> {
     const userDB = await this.userRepository.findById(userId);
+=======
+  public async getById(userId: string): Promise<User> {
+    // Ajustado de getById para findById para bater com o repositório
+    const userDB = await this.userRepository.findById(userId);
+
+>>>>>>> main
     if (!userDB) {
       throw new Error('User not found');
     }
@@ -45,9 +52,15 @@ export class UserService {
   }
 
   public async listAll(): Promise<User[]> {
+<<<<<<< feature/data-validation-zod
     const users = await this.userRepository.findAll();
 
     return users.map((user: { id: string; name: string; imageUrl: string | null; username: string; password: string; createdAt: Date; updatedAt: Date; }) => this.mapToModel(user));
+=======
+    // Ajustado de listAll para findAll
+    const users = await this.userRepository.findAll();
+    return users.map((user: UserEntity) => this.mapToModel(user));
+>>>>>>> main
   }
 
   private mapToModel(entity: UserEntity): User {
