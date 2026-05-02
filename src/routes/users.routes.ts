@@ -5,7 +5,7 @@ import { z } from "zod";
 
 const userIdParamSchema = z.object({
   params: z.object({
-    userId: z.string().uuid("Invalid User ID format"),
+    userId: z.string().uuid(),
   }),
 });
 
@@ -14,13 +14,13 @@ export class UsersRoutes {
     const router = express.Router();
     const controller = UserFactory.createController();
 
-    router.get("/users", controller.index);
-
+    router.post("/users", controller.create);
+    
     router.get(
-      "/users/:userId",
+      "/users/:userId", 
       authMiddleware,
-      dataValidationMiddleware(userIdParamSchema), 
-      controller.getById,
+      dataValidationMiddleware(userIdParamSchema as any), 
+      controller.getById
     );
 
     return router;

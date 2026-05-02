@@ -1,35 +1,24 @@
 import { BcryptAdapter } from "../adapters";
 import { AuthController } from "../controllers";
-import { FollowRepository } from "../repositories/follow.repository";
-import { LikeRepository } from "../repositories/like.repository";
-import { TweetRepository } from "../repositories/tweet.repository";
 import { UserRepository } from "../repositories/user.repository";
 import {
   AuthService,
-  FollowService,
-  LikeService,
-  TweetService,
   UserService,
 } from "../services";
 
 export class AuthFactory {
   public static createController(): AuthController {
+    // 1. Instancia o repositório necessário
     const userRepository = new UserRepository();
-    const likeRepository = new LikeRepository();
-    const tweetRepository = new TweetRepository();
-    const followRepository = new FollowRepository();
 
-    const likeService = new LikeService(likeRepository, tweetRepository);
-    const tweetService = new TweetService(tweetRepository, likeService);
-    const followService = new FollowService(followRepository);
-    const userService = new UserService(
-      userRepository,
-      tweetService,
-      followService,
-    );
+    // 2. Instancia o UserService passando APENAS o userRepository
+    const userService = new UserService(userRepository);
+
+    // 3. Configura o AuthService
     const bcryptAdapter = new BcryptAdapter();
     const authService = new AuthService(userService, bcryptAdapter);
 
+    // 4. Retorna o Controller
     return new AuthController(authService);
   }
 }

@@ -8,6 +8,8 @@ import { FollowService, LikeService, TweetService, UserService } from "../servic
 export class UserFactory {
   public static createController(): UsersController {
     const userRepository = new UserRepository();
+    const userService = new UserService(userRepository);
+
     const likeRepository = new LikeRepository();
     const tweetRepository = new TweetRepository();
     const followRepository = new FollowRepository();
@@ -15,11 +17,6 @@ export class UserFactory {
     const likeService = new LikeService(likeRepository, tweetRepository);
     const tweetService = new TweetService(tweetRepository, likeService);
     const followService = new FollowService(followRepository);
-    const userService = new UserService(
-      userRepository,
-      tweetService,
-      followService,
-    );
 
     return new UsersController(userService);
   }

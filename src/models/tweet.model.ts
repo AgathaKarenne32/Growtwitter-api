@@ -1,6 +1,9 @@
 import { Like, LikeDto, User, UserDto } from ".";
 
-type TweetType = "NORMAL" | "REPLY";
+export enum TweetType {
+  NORMAL = "NORMAL",
+  REPLY = "REPLY"
+}
 
 export interface TweetDto {
   id: string;

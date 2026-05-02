@@ -29,12 +29,11 @@ class App {
   }
 
   private initializeControllers(routers: express.Router[]) {
-    // Rota base para verificar se a API está online
     this.app.get("/", (req, res) => res.send("Growtwitter API is running!"));
     
     routers.forEach((router) => {
-      this.app.use(router);
-    });
+    this.app.use(router); 
+  });
   }
 
   private initializeErrorHandling() {

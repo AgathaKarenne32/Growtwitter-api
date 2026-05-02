@@ -71,7 +71,7 @@ export class FollowService {
     return new User(
       entity.id,
       entity.name,
-      entity.imageUrl,
+      entity.imageUrl || null, 
       entity.username,
       entity.createdAt,
       entity.updatedAt,

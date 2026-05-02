@@ -1,26 +1,24 @@
 import { NextFunction, Request, Response } from "express";
-import { ZodObject, ZodError } from "zod";
+import { ZodError } from "zod"; 
+import { ZodSchema } from "zod";
 import { HTTPError } from "../utils/http.error";
-import { AnyZodObject } from "zod/v3";
 
-export const dataValidationMiddleware = (schema: AnyZodObject) => {
+export const dataValidationMiddleware = (schema: ZodSchema) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // Valida o body, query e params conforme definido no schema
       await schema.parseAsync({
         body: req.body,
         query: req.query,
         params: req.params,
       });
       return next();
-    } catch (error) {
+    } catch (error: unknown) { // Definindo como unknown por segurança
       if (error instanceof ZodError) {
-        // Mapeia os erros do Zod para uma mensagem legível
         const errorMessage = error.issues
-          .map((err: { path: any[]; message: any; }) => `${err.path.join(".")}: ${err.message}`)
+          .map((err) => `${err.path.join(".")}: ${err.message}`)
           .join(", ");
         
-        throw new HTTPError(400, errorMessage);
+        return next(new HTTPError(400, errorMessage)); // Use return next para erros assíncronos
       }
       return next(error);
     }

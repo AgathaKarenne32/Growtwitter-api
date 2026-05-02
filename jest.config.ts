@@ -156,12 +156,6 @@ const config: Config = {
   // Adds a location field to test results
   // testLocationInResults: false,
 
-  // The glob patterns Jest uses to detect test files
-  // testMatch: [
-  //   "**/__tests__/**/*.?([mc])[jt]s?(x)",
-  //   "**/?(*.)+(spec|test).?([mc])[jt]s?(x)"
-  // ],
-
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
   // testPathIgnorePatterns: [
   //   "\\\\node_modules\\\\"
@@ -201,6 +195,9 @@ const config: Config = {
 export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  testMatch: ['**/**/*.spec.ts'], // Para encontrar seus arquivos .spec.ts
   clearMocks: true,
+  testMatch: [
+    "**/__tests__/**/*.[jt]s?(x)", 
+    "**/?(*.)+(spec|test).[jt]s?(x)"
+  ],
 };

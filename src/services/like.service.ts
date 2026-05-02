@@ -60,7 +60,7 @@ export class LikeService {
       new User(
         entity.author.id,
         entity.author.name,
-        entity.author.imageUrl,
+        entity.author.imageUrl || null, 
         entity.author.username,
         entity.author.createdAt,
         entity.author.updatedAt,
