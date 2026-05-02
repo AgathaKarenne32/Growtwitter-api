@@ -1,10 +1,17 @@
 services:
   db:
     image: postgres:15
+    container_name: growtwitter-api-db-1
     restart: always
     environment:
-      POSTGRES_USER: agatha
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: growtwitter
+      # O formato ${VAR:-default} define um valor padrão caso a variável não exista
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-growtwitter}
     ports:
-      - "5433:5432" # Mudamos aqui!
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

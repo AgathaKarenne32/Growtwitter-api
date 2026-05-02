@@ -6,7 +6,6 @@
     "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
     "build": "tsc",
     "start": "node ./build/server.js",
-    "db:migrate": "prisma migrate deploy",
     "test": "jest",
     "test:unit": "jest src/services",
     "test:int": "jest __tests__",
@@ -14,7 +13,10 @@
     "eslint:check": "npx eslint .",
     "eslint:fix": "npx eslint . --fix",
     "prettier": "npx prettier --write .",
-    "postinstall": "npx prisma migrate deploy && npx prisma generate"
+    "postinstall": "prisma generate", 
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset"
   },
   "keywords": [],
   "author": "",
