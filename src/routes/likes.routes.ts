@@ -1,4 +1,4 @@
-import express from "express";
+import { Router } from "express";
 import { LikeFactory } from "../factories";
 import { authMiddleware, dataValidationMiddleware } from "../middlewares";
 import { z } from "zod";
@@ -9,25 +9,21 @@ const likeSchema = z.object({
   }),
 });
 
-export class LikesRoutes {
-  public static bind() {
-    const router = express.Router();
-    const controller = LikeFactory.createController();
+const LikesRoutes = Router();
+const controller = LikeFactory.createController();
 
-    router.post(
-      "/likes",
-      authMiddleware,
-      dataValidationMiddleware(likeSchema),
-      controller.like
-    );
+LikesRoutes.post(
+  "/",
+  authMiddleware,
+  dataValidationMiddleware(likeSchema),
+  controller.like
+);
 
-    router.delete(
-      "/likes",
-      authMiddleware,
-      dataValidationMiddleware(likeSchema),
-      controller.dislike
-    );
+LikesRoutes.delete(
+  "/",
+  authMiddleware,
+  dataValidationMiddleware(likeSchema),
+  controller.dislike
+);
 
-    return router;
-  }
-}
+export { LikesRoutes };

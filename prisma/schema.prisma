@@ -25,17 +25,24 @@ model User {
 }
 
 model Tweet {
-    id        String    @id @default(uuid()) @db.Uuid
-    content   String    @db.VarChar(300)
-    authorId  String    @map("author_id") @db.Uuid
-    type      TweetType @default(NORMAL)
-    createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp
-    updatedAt DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp
+    id             String    @id @default(uuid()) @db.Uuid
+    content        String    @db.VarChar(300)
+    authorId       String    @map("author_id") @db.Uuid
+    type           TweetType @default(NORMAL)
+    parentTweetId  String?   @map("parent_tweet_id") @db.Uuid // Adicionado @db.Uuid e @map
 
-    author  User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
-    likes   Like[]
-    replies Reply[] @relation("tweet")
-    replyOf Reply?  @relation("reply")
+    // Relações
+    author         User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    parentTweet    Tweet?    @relation("RetweetRelation", fields: [parentTweetId], references: [id])
+    retweets       Tweet[]   @relation("RetweetRelation")
+    
+    likes          Like[]
+    replies        Reply[]   @relation("tweet")
+    replyOf        Reply?    @relation("reply")
+
+    // Datas únicas e mapeadas
+    createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamp
+    updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp
 
     @@map("tweets")
 }
@@ -81,5 +88,6 @@ model Follow {
 
 enum TweetType {
     NORMAL
+    RETWEET
     REPLY
 }

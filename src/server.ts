@@ -1,22 +1,8 @@
+import "dotenv/config";
 import App from "./app";
+import router from "./routes"; 
 import { envs } from "./envs";
-import {
-  AuthRoutes,
-  FollowersRoutes,
-  LikesRoutes,
-  TweetsRoutes,
-  UsersRoutes,
-} from "./routes";
 
-const app = new App(
-  [
-    AuthRoutes.bind(),
-    UsersRoutes.bind(),
-    TweetsRoutes.bind(),
-    LikesRoutes.bind(),
-    FollowersRoutes.bind(),
-  ],
-  envs.PORT,
-);
+const app = new App();
 
-app.listen();
+app.listen(envs.PORT);

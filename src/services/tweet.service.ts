@@ -8,7 +8,7 @@ import {
 } from "../dtos";
 import { Tweet, User } from "../models";
 import { HTTPError } from "../utils";
-import { TweetEntity, TweetRepository, TweetType } from "../repositories/tweet.repository";
+import { TweetEntity, TweetRepository } from "../repositories/tweet.repository";
 
 export class TweetService {
   constructor(
@@ -28,8 +28,7 @@ export class TweetService {
       throw new HTTPError(404, "Tweet to reply not found");
     }
 
-    // Agora TweetType é um valor real (enum/const) e pode ser comparado
-    if (tweet.type === TweetType.REPLY) {
+    if (tweet.type === "REPLY") {
       throw new HTTPError(409, "Cannot reply to a reply");
     }
 
@@ -52,17 +51,16 @@ export class TweetService {
     const replies = await this.listRepliesByTweetId(tweetDB.id);
     const likes = await this.likeService.listLikesByTweetId(tweetDB.id);
     
-    // Garantimos que o author existe com ! após a verificação acima
     const author = new User(
       tweetDB.author.id,
       tweetDB.author.name,
-      tweetDB.author.imageUrl,
+      tweetDB.author.imageUrl!, // Forçando a tipagem aqui
       tweetDB.author.username,
       tweetDB.author.createdAt,
       tweetDB.author.updatedAt,
     );
 
-    const tweet = this.mapToModel(tweetDB);
+    const tweet = this.mapToModel(tweetDB as unknown as TweetEntity);
     tweet.withAuthor(author);
     tweet.withReplies(replies);
     tweet.withLikes(likes);
@@ -71,7 +69,6 @@ export class TweetService {
   }
 
   public async updateTweet(dto: UpdateTweetDto): Promise<Tweet> {
-    // Verificamos se o tweet existe e pertence ao autor
     const tweetDB = await this.tweetRepository.findUnique(dto.tweetId);
     
     if (!tweetDB) throw new HTTPError(404, "Tweet not found");
@@ -83,7 +80,7 @@ export class TweetService {
       content: dto.content 
     });
 
-    return this.mapToModel(tweetUpdated);
+    return this.mapToModel(tweetUpdated as unknown as TweetEntity);
   }
 
   public async deleteTweet(dto: DeleteTweetDto): Promise<Tweet> {
@@ -100,14 +97,7 @@ export class TweetService {
 
   public async listTweetsByUserId(userId: string): Promise<Tweet[]> {
     const tweetsDB = await this.tweetRepository.findManyByUserId(userId);
-    const tweets: Tweet[] = [];
-
-    for (const tweet of tweetsDB) {
-      const tweetModel = this.mapToModel(tweet);
-      tweets.push(tweetModel);
-    }
-
-    return tweets;
+    return tweetsDB.map(tweet => this.mapToModel(tweet));
   }
 
   private async listRepliesByTweetId(tweetId: string): Promise<Tweet[]> {
@@ -116,11 +106,11 @@ export class TweetService {
 
     for (const r of repliesDB) {
       if (r.author) {
-        const replyModel = this.mapToModel(r);
+        const replyModel = this.mapToModel(r as unknown as TweetEntity);
         const author = new User(
           r.author.id,
           r.author.name,
-          r.author.imageUrl,
+          r.author.imageUrl!,
           r.author.username,
           r.author.createdAt,
           r.author.updatedAt
@@ -134,25 +124,43 @@ export class TweetService {
 
   public async feed(userId: string): Promise<Tweet[]> {
     const tweetsDB = await this.tweetRepository.feed(userId);
-    const tweets: Tweet[] = [];
+    return tweetsDB.map((tweetDB) => {
+        const tweetModel = this.mapToModel(tweetDB);
+        if (tweetDB.author) {
+            const author = new User(
+                tweetDB.author.id,
+                tweetDB.author.name,
+                tweetDB.author.imageUrl!,
+                tweetDB.author.username,
+                tweetDB.author.createdAt,
+                tweetDB.author.updatedAt
+            );
+            tweetModel.withAuthor(author);
+        }
+        return tweetModel;
+    });
+  }
 
-    for (const tweet of tweetsDB) {
-      const tweetModel = this.mapToModel(tweet);
-      if (tweet.author) {
-         const author = new User(
-          tweet.author.id,
-          tweet.author.name,
-          tweet.author.imageUrl,
-          tweet.author.username,
-          tweet.author.createdAt,
-          tweet.author.updatedAt
+  public async listFeed(page: number = 1, perPage: number = 10): Promise<Tweet[]> {
+    const tweetsDB = await this.tweetRepository.listAll(page, perPage);
+    
+    return tweetsDB.map((tweetDB) => {
+      const tweetModel = this.mapToModel(tweetDB);
+      
+      if (tweetDB.author) {
+        const author = new User(
+          tweetDB.author.id,
+          tweetDB.author.name,
+          tweetDB.author.imageUrl!,
+          tweetDB.author.username,
+          tweetDB.author.createdAt,
+          tweetDB.author.updatedAt
         );
         tweetModel.withAuthor(author);
       }
-      tweets.push(tweetModel);
-    }
 
-    return tweets;
+      return tweetModel;
+    });
   }
 
   private mapToModel(entity: TweetEntity): Tweet {
@@ -162,6 +170,14 @@ export class TweetService {
       entity.type as any,
       entity.createdAt,
       entity.updatedAt,
+      entity.parentTweetId ? undefined : entity.author ? new User(
+        entity.author.id,
+        entity.author.name,
+        entity.author.imageUrl!,
+        entity.author.username,
+        entity.author.createdAt,
+        entity.author.updatedAt
+      ) : undefined
     );
   }
 }

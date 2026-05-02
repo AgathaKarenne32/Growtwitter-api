@@ -1,13 +1,18 @@
 import { z } from "zod";
+import { TweetType } from "@prisma/client";
 
 export const createTweetSchema = z.object({
   body: z.object({
-    content: z.string().min(1, "Content cannot be empty").max(280),
-  }),
-});
-
-export const tweetIdSchema = z.object({
-  params: z.object({
-    id: z.string().uuid("Invalid Tweet ID"),
+    content: z.string().max(300).optional(), 
+    type: z.nativeEnum(TweetType).default(TweetType.NORMAL),
+    parentTweetId: z.string().uuid().optional(), 
+  }).refine((data) => {
+    if (data.type === TweetType.RETWEET && !data.parentTweetId) {
+      return false;
+    }
+    return true;
+  }, {
+    message: "parentTweetId is required for retweets",
+    path: ["parentTweetId"],
   }),
 });

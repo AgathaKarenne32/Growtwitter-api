@@ -10,17 +10,13 @@ const loginSchema = z.object({
   }),
 });
 
-export class AuthRoutes {
-  public static bind(): Router {
-    const router = Router();
-    const controller = AuthFactory.createController();
+const AuthRoutes = Router();
+const controller = AuthFactory.createController();
 
-    router.post(
-      "/login",
-      dataValidationMiddleware(loginSchema), 
-      controller.login
-    );
+AuthRoutes.post(
+  "/login",
+  dataValidationMiddleware(loginSchema), 
+  controller.login
+);
 
-    return router;
-  }
-}
+export { AuthRoutes };

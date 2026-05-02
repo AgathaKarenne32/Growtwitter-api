@@ -1,27 +1,27 @@
-import express from "express";
+import { Router } from "express";
 import { TweetFactory } from "../factories";
 import { authMiddleware, dataValidationMiddleware } from "../middlewares";
-import { createTweetSchema, tweetIdSchema } from "../dtos/tweet/tweet.schema"; // Importe os schemas criados
+import { createTweetSchema } from "../dtos/tweet/tweet.schema";
 
-export class TweetsRoutes {
-  public static bind() {
-    const router = express.Router();
-    const controller = TweetFactory.createController();
+const TweetsRoutes = Router();
+const controller = TweetFactory.createController();
 
-    router.post(
-      "/tweets",
-      authMiddleware,
-      dataValidationMiddleware(createTweetSchema),
-      controller.createTweet,
-    );
+TweetsRoutes.post(
+  "/", 
+  authMiddleware,
+  dataValidationMiddleware(createTweetSchema),
+  controller.createTweet
+);
 
-    router.delete(
-      "/tweets/:id",
-      authMiddleware,
-      dataValidationMiddleware(tweetIdSchema),
-      controller.deleteTweet,
-    );
+TweetsRoutes.delete(
+  "/:id",
+  authMiddleware,
+  controller.deleteTweet
+);
 
-    return router;
-  }
-}
+TweetsRoutes.get(
+  "/", 
+  controller.index 
+);
+
+export { TweetsRoutes };
