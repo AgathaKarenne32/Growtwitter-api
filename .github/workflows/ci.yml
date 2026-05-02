@@ -1,0 +1,56 @@
+name: CI - Growtwitter API
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # Sobe o banco de dados para os testes de integração
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: agatha
+          POSTGRES_PASSWORD: mypassword
+          POSTGRES_DB: growtwitter
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Setup Prisma
+        run: npx prisma generate
+        env:
+          DATABASE_URL: "postgresql://agatha:mypassword@localhost:5433/growtwitter?schema=public"
+
+      # O GitHub Actions espera o banco estar pronto para rodar as migrations
+      - name: Run Migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: "postgresql://agatha:mypassword@localhost:5433/growtwitter?schema=public"
+
+      - name: Run Tests
+        run: npm run test:int
+        env:
+          DATABASE_URL: "postgresql://agatha:mypassword@localhost:5433/growtwitter?schema=public"
+          JWT_SECRET_KEY: "test_secret_key"
