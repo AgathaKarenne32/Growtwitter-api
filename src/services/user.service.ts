@@ -12,6 +12,7 @@ export class UserService {
   }
 
   public async findByUsername(username: string): Promise<User | null> {
+    
     const userEntity = await this.userRepository.findByUsername(username);
 
     if (!userEntity) {

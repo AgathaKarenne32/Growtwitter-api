@@ -7,7 +7,7 @@ export class JWTAdapter {
   constructor(
     private _secret: string = envs.JWT_SECRET_KEY,
     private _expireIn: StringValue = envs.JWT_EXPIRE_IN as StringValue,
-  ) {}
+  ) { }
 
   public generateToken(data: string | Buffer | object): string {
     return jwt.sign(data, this._secret, {

@@ -1,5 +1,6 @@
 import prismaRepository from "../database/prisma.repository";
 import { CreateUserDto } from "../dtos";
+import * as bcrypt from "bcrypt";
 
 export interface UserEntity {
   id: string;
@@ -13,12 +14,15 @@ export interface UserEntity {
 
 export class UserRepository {
   public async create(data: CreateUserDto): Promise<UserEntity> {
+    // 1. Criptografa a senha antes de salvar
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(data.password, salt);
+
+    // 2. Salva no banco com a senha protegida
     return await prismaRepository.user.create({
       data: {
-        name: data.name,
-        username: data.username,
-        imageUrl: data.imageUrl,
-        password: data.password,
+        ...data,
+        password: hashedPassword,
       },
     });
   }
@@ -27,6 +31,15 @@ export class UserRepository {
   public async findByUsername(username: string): Promise<UserEntity | null> {
     return await prismaRepository.user.findUnique({
       where: { username },
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        name: true,
+        imageUrl: true,
+        createdAt: true,
+        updatedAt: true,
+      }
     });
   }
 
@@ -38,5 +51,9 @@ export class UserRepository {
 
   public async listAll(): Promise<UserEntity[]> {
     return await prismaRepository.user.findMany();
+  }
+
+  public get password(): string | undefined {
+    return this.password;
   }
 }

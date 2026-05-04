@@ -10,7 +10,7 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly bcryptAdapter: BcryptAdapter,
-  ) {}
+  ) { }
 
   public async register(dto: CreateUserDto): Promise<User> {
     const usernameAlreadyExists = await this.userService.findByUsername(
@@ -34,26 +34,31 @@ export class AuthService {
   public async login(dto: LoginDto): Promise<LoginOutputDto> {
     const user = await this.userService.findByUsername(dto.username);
 
+    console.log("DEBUG LOGIN:", {
+      dtoPassword: !!dto.password,
+      userPassword: !!(user as any)?.password
+    });
+
     if (!user) {
       throw new HTTPError(404, "User not found");
     }
 
-    const userJson = user.toJSON();
-
     const isPasswordMatch = await this.bcryptAdapter.compareHash(
       dto.password,
-      userJson.password!,
+      (user as any).password
     );
 
     if (!isPasswordMatch) {
       throw new HTTPError(401, "Invalid credentials");
     }
+    const userJson = user.toJSON();
 
     const authUser: AuthUserDto = {
       id: userJson.id,
       name: userJson.name,
       username: userJson.username,
     };
+
     const jwt = new JWTAdapter();
     const token = jwt.generateToken(authUser);
 
