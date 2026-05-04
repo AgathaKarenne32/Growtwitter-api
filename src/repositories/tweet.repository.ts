@@ -1,7 +1,9 @@
 import prismaRepository from "../database/prisma.repository";
 import { CreateTweetDto } from "../dtos";
 import { TweetEntity } from "../interfaces/tweet-repository.interface";
+export { TweetEntity } from "../interfaces/tweet-repository.interface";
 import { TweetType as PrismaTweetType } from "@prisma/client";
+
 
 export type TweetType = PrismaTweetType;
 
@@ -42,7 +44,7 @@ export class TweetRepository {
         data: {
           content,
           authorId,
-          type: "REPLY", 
+          type: "REPLY",
         },
       });
 
@@ -63,9 +65,9 @@ export class TweetRepository {
   public async delete(id: string): Promise<TweetEntity> {
     return await prismaRepository.tweet.delete({
       where: { id },
-      include: { author: true } 
+      include: { author: true }
     }) as unknown as TweetEntity;
-  } 
+  }
 
   public async findManyByUserId(userId: string): Promise<TweetEntity[]> {
     return await prismaRepository.tweet.findMany({
@@ -86,7 +88,7 @@ export class TweetRepository {
         content: data.content || "",
         type: data.type,
         authorId: data.authorId,
-        parentTweetId: data.parentTweetId, 
+        parentTweetId: data.parentTweetId,
       },
     }) as unknown as TweetEntity;
   }
@@ -98,7 +100,7 @@ export class TweetRepository {
       orderBy: { createdAt: 'desc' },
       include: {
         author: true,
-        parentTweet: { 
+        parentTweet: {
           include: {
             author: true
           }

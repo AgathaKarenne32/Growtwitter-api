@@ -34,23 +34,19 @@ export class AuthService {
   public async login(dto: LoginDto): Promise<LoginOutputDto> {
     const user = await this.userService.findByUsername(dto.username);
 
-    console.log("DEBUG LOGIN:", {
-      dtoPassword: !!dto.password,
-      userPassword: !!(user as any)?.password
-    });
-
     if (!user) {
       throw new HTTPError(404, "User not found");
     }
 
     const isPasswordMatch = await this.bcryptAdapter.compareHash(
       dto.password,
-      (user as any).password
+      user.password || ""
     );
 
     if (!isPasswordMatch) {
       throw new HTTPError(401, "Invalid credentials");
     }
+
     const userJson = user.toJSON();
 
     const authUser: AuthUserDto = {
