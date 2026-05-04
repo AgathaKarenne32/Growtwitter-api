@@ -1,16 +1,17 @@
 import request from 'supertest';
 import { app } from '../../src/app';
-import { describe, it, expect } from '@jest/globals'; 
+import { describe, it, expect } from '@jest/globals';
 
 describe('User Integration Tests', () => {
   it('should create a new user via HTTP POST', async () => {
     const uniqueUsername = `testuser_${Date.now()}`;
-    
+
     const response = await request(app)
       .post('/users')
       .send({
         name: "Test User",
         username: uniqueUsername,
+        email: "test@example.com",
         imageUrl: "http://example.com/image.png",
         password: "password123"
       });
@@ -24,7 +25,7 @@ describe('User Integration Tests', () => {
     expect(response.body.data).toHaveProperty('id');
     expect(response.body.data.name).toBe("Test User");
     expect(response.body.data.username).toBe(uniqueUsername);
-    
+
     expect(response.body.success).toBe(true);
     expect(response.body.message).toBe("User created successfully.");
   });

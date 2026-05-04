@@ -6,6 +6,7 @@ export interface UserEntity {
   id: string;
   name: string;
   username: string;
+  email: string;
   imageUrl?: string | null;
   password?: string;
   createdAt: Date;
@@ -14,46 +15,39 @@ export interface UserEntity {
 
 export class UserRepository {
   public async create(data: CreateUserDto): Promise<UserEntity> {
-    // 1. Criptografa a senha antes de salvar
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(data.password, salt);
 
-    // 2. Salva no banco com a senha protegida
-    return await prismaRepository.user.create({
+    const user = await prismaRepository.user.create({
       data: {
-        ...data,
+        name: data.name,
+        username: data.username,
+        email: data.email,
         password: hashedPassword,
+        imageUrl: data.imageUrl,
       },
     });
+
+    return user as unknown as UserEntity;
   }
 
-  // Método essencial para o Login e Registro funcionarem
   public async findByUsername(username: string): Promise<UserEntity | null> {
-    return await prismaRepository.user.findUnique({
+    const user = await prismaRepository.user.findUnique({
       where: { username },
-      select: {
-        id: true,
-        username: true,
-        password: true,
-        name: true,
-        imageUrl: true,
-        createdAt: true,
-        updatedAt: true,
-      }
     });
+    return user as unknown as UserEntity | null;
   }
 
   public async findById(id: string): Promise<UserEntity | null> {
-    return await prismaRepository.user.findUnique({
+    const user = await prismaRepository.user.findUnique({
       where: { id },
     });
+    return user as unknown as UserEntity | null;
   }
 
   public async listAll(): Promise<UserEntity[]> {
-    return await prismaRepository.user.findMany();
+    const users = await prismaRepository.user.findMany();
+    return users as unknown as UserEntity[];
   }
 
-  public get password(): string | undefined {
-    return this.password;
-  }
 }
