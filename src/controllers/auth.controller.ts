@@ -4,15 +4,16 @@ import { AuthService } from "../services";
 import { onError } from "../utils";
 
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   public register = async (req: Request, res: Response) => {
     try {
-      const { name, username, password, imageUrl } = req.body;
+      const { name, username, email, password, imageUrl } = req.body;
 
       const result = await this.authService.register({
         name,
         username,
+        email,
         password,
         imageUrl,
       });
@@ -20,7 +21,7 @@ export class AuthController {
       res.status(201).json({
         success: true,
         message: "Registration completed successfully.",
-        data: result.toJSON(),
+        data: result,
       });
     } catch (error) {
       onError(error, res);
