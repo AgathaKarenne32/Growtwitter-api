@@ -16,7 +16,8 @@ export class FollowFactory {
     return new User(
       entity.id,
       entity.name,
-      entity.imageUrl || null, 
+      entity.imageUrl || null,
+      entity.email,
       entity.username,
       entity.createdAt,
       entity.updatedAt,

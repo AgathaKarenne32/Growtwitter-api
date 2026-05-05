@@ -3,6 +3,7 @@ import { Tweet, TweetDto } from ".";
 export interface UserDto {
   id: string;
   name: string;
+  email: string;
   imageUrl: string | null;
   username: string;
   createdAt: Date;
@@ -19,9 +20,10 @@ export class User {
     public readonly name: string,
     public readonly imageUrl: string | null,
     public readonly username: string,
+    public readonly email: string,
     public readonly createdAt: Date,
     public readonly updatedAt: Date,
-    private _password?: string, // Usei _ para diferenciar do getter
+    private _password?: string,
     private _tweets?: Tweet[],
     private _followers?: User[],
     private _following?: User[],
@@ -55,8 +57,9 @@ export class User {
     return {
       id: this.id,
       name: this.name,
-      imageUrl: this.imageUrl,
+      imageUrl: this.imageUrl || null,
       username: this.username,
+      email: this.email,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       password: this._password,

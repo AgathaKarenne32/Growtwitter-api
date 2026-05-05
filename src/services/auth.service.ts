@@ -14,7 +14,7 @@ export class AuthService {
 
   public async register(dto: CreateUserDto): Promise<User> {
     const usernameAlreadyExists = await this.userService.findByUsername(
-      dto.username,
+      dto.username
     );
 
     if (usernameAlreadyExists) {
@@ -53,6 +53,8 @@ export class AuthService {
       id: userJson.id,
       name: userJson.name,
       username: userJson.username,
+      email: userJson.email,
+      imageUrl: userJson.imageUrl,
     };
 
     const jwt = new JWTAdapter();
