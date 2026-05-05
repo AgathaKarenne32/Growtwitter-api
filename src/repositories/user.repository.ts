@@ -27,13 +27,8 @@ export class UserRepository {
     });
 
     return {
-      id: user.id,
-      name: user.name,
+      ...user,
       imageUrl: user.imageUrl || null,
-      username: user.username,
-      email: user.email,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
     } as UserEntity;
   }
 
@@ -41,14 +36,14 @@ export class UserRepository {
     const user = await prismaRepository.user.findUnique({
       where: { username },
     });
-    return user as unknown as UserEntity | null;
+    return user as UserEntity | null;
   }
 
   public async findById(id: string): Promise<UserEntity | null> {
     const user = await prismaRepository.user.findUnique({
       where: { id },
     });
-    return user as unknown as UserEntity | null;
+    return user as UserEntity | null;
   }
 
   public async listAll(): Promise<UserEntity[]> {
