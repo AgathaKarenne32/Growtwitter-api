@@ -14,7 +14,7 @@ export class TweetService {
   constructor(
     private tweetRepository: TweetRepository,
     private likeService: LikeService,
-  ) {}
+  ) { }
 
   public async createTweet(dto: CreateTweetDto): Promise<Tweet> {
     const newTweet = await this.tweetRepository.create(dto);
@@ -50,16 +50,16 @@ export class TweetService {
 
     const replies = await this.listRepliesByTweetId(tweetDB.id);
     const likes = await this.likeService.listLikesByTweetId(tweetDB.id);
-    
+
     const author = new User(
       tweetDB.author.id,
       tweetDB.author.name,
-      tweetDB.author.imageUrl!, // Forçando a tipagem aqui
+      tweetDB.author.imageUrl || null,
       tweetDB.author.username,
+      tweetDB.author.email,
       tweetDB.author.createdAt,
       tweetDB.author.updatedAt,
     );
-
     const tweet = this.mapToModel(tweetDB as unknown as TweetEntity);
     tweet.withAuthor(author);
     tweet.withReplies(replies);
@@ -70,14 +70,14 @@ export class TweetService {
 
   public async updateTweet(dto: UpdateTweetDto): Promise<Tweet> {
     const tweetDB = await this.tweetRepository.findUnique(dto.tweetId);
-    
+
     if (!tweetDB) throw new HTTPError(404, "Tweet not found");
     if (tweetDB.authorId !== dto.authorId) {
       throw new HTTPError(403, "You are not allowed to update this tweet");
     }
 
     const tweetUpdated = await this.tweetRepository.update(dto.tweetId, {
-      content: dto.content 
+      content: dto.content
     });
 
     return this.mapToModel(tweetUpdated as unknown as TweetEntity);
@@ -85,7 +85,7 @@ export class TweetService {
 
   public async deleteTweet(dto: DeleteTweetDto): Promise<Tweet> {
     const tweetDB = await this.tweetRepository.findUnique(dto.tweetId);
-    
+
     if (!tweetDB) throw new HTTPError(404, "Tweet not found");
     if (tweetDB.authorId !== dto.authorId) {
       throw new HTTPError(403, "You are not allowed to delete this tweet");
@@ -110,8 +110,9 @@ export class TweetService {
         const author = new User(
           r.author.id,
           r.author.name,
-          r.author.imageUrl!,
+          r.author.imageUrl || null,
           r.author.username,
+          r.author.email,
           r.author.createdAt,
           r.author.updatedAt
         );
@@ -125,34 +126,36 @@ export class TweetService {
   public async feed(userId: string): Promise<Tweet[]> {
     const tweetsDB = await this.tweetRepository.feed(userId);
     return tweetsDB.map((tweetDB) => {
-        const tweetModel = this.mapToModel(tweetDB);
-        if (tweetDB.author) {
-            const author = new User(
-                tweetDB.author.id,
-                tweetDB.author.name,
-                tweetDB.author.imageUrl!,
-                tweetDB.author.username,
-                tweetDB.author.createdAt,
-                tweetDB.author.updatedAt
-            );
-            tweetModel.withAuthor(author);
-        }
-        return tweetModel;
+      const tweetModel = this.mapToModel(tweetDB);
+      if (tweetDB.author) {
+        const author = new User(
+          tweetDB.author.id,
+          tweetDB.author.name,
+          tweetDB.author.imageUrl || null,
+          tweetDB.author.username,
+          tweetDB.author.email,
+          tweetDB.author.createdAt,
+          tweetDB.author.updatedAt
+        );
+        tweetModel.withAuthor(author);
+      }
+      return tweetModel;
     });
   }
 
   public async listFeed(page: number = 1, perPage: number = 10): Promise<Tweet[]> {
     const tweetsDB = await this.tweetRepository.listAll(page, perPage);
-    
+
     return tweetsDB.map((tweetDB) => {
       const tweetModel = this.mapToModel(tweetDB);
-      
+
       if (tweetDB.author) {
         const author = new User(
           tweetDB.author.id,
           tweetDB.author.name,
-          tweetDB.author.imageUrl!,
+          tweetDB.author.imageUrl || null,
           tweetDB.author.username,
+          tweetDB.author.email,
           tweetDB.author.createdAt,
           tweetDB.author.updatedAt
         );
@@ -173,8 +176,9 @@ export class TweetService {
       entity.parentTweetId ? undefined : entity.author ? new User(
         entity.author.id,
         entity.author.name,
-        entity.author.imageUrl!,
+        entity.author.imageUrl || null,
         entity.author.username,
+        entity.author.email,
         entity.author.createdAt,
         entity.author.updatedAt
       ) : undefined

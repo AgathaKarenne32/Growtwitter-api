@@ -28,7 +28,15 @@ export class UserRepository {
       },
     });
 
-    return user as unknown as UserEntity;
+    return {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      imageUrl: user.imageUrl || null,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    } as UserEntity;
   }
 
   public async findByUsername(username: string): Promise<UserEntity | null> {

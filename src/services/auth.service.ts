@@ -13,9 +13,7 @@ export class AuthService {
   ) { }
 
   public async register(dto: CreateUserDto): Promise<User> {
-    const usernameAlreadyExists = await this.userService.findByUsername(
-      dto.username
-    );
+    const usernameAlreadyExists = await this.userService.findByUsername(dto.username);
 
     if (usernameAlreadyExists) {
       throw new HTTPError(409, "Username already exists");
@@ -28,7 +26,15 @@ export class AuthService {
       password: passwordHashed,
     });
 
-    return newUser;
+    return new User(
+      newUser.id,
+      newUser.name,
+      newUser.imageUrl || null,
+      newUser.username,
+      newUser.email,
+      newUser.createdAt,
+      newUser.updatedAt
+    );
   }
 
   public async login(dto: LoginDto): Promise<LoginOutputDto> {

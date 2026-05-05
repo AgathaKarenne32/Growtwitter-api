@@ -42,8 +42,8 @@ export class UserService {
       entity.id,
       entity.name,
       entity.imageUrl || null,
-      entity.email,
       entity.username,
+      entity.email,
       entity.createdAt,
       entity.updatedAt
     );

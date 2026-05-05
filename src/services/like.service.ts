@@ -9,7 +9,7 @@ export class LikeService {
   constructor(
     private likeRepository: LikeRepository,
     private tweetRepository: TweetRepository,
-  ) {}
+  ) { }
 
   public async listLikesByTweetId(tweetId: string): Promise<Like[]> {
     const likes = await this.likeRepository.findManyByTweetId(tweetId);
@@ -60,7 +60,8 @@ export class LikeService {
       new User(
         entity.author.id,
         entity.author.name,
-        entity.author.imageUrl || null, 
+        entity.author.imageUrl || null,
+        entity.author.email,
         entity.author.username,
         entity.author.createdAt,
         entity.author.updatedAt,
