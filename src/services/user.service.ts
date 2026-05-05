@@ -4,7 +4,7 @@ import { UserRepository, UserEntity } from "../repositories/user.repository";
 import { HTTPError } from "../utils";
 
 export class UserService {
-  constructor(private userRepository: UserRepository) {}
+  constructor(private userRepository: UserRepository) { }
 
   public async create(dto: CreateUserDto): Promise<User> {
     const newUser = await this.userRepository.create(dto);
@@ -12,7 +12,7 @@ export class UserService {
   }
 
   public async findByUsername(username: string): Promise<User | null> {
-    
+
     const userEntity = await this.userRepository.findByUsername(username);
 
     if (!userEntity) {
@@ -41,7 +41,8 @@ export class UserService {
     return new User(
       entity.id,
       entity.name,
-      entity.imageUrl || "",
+      entity.imageUrl || null,
+      entity.email,
       entity.username,
       entity.createdAt,
       entity.updatedAt
