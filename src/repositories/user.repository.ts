@@ -15,15 +15,13 @@ export interface UserEntity {
 
 export class UserRepository {
   public async create(data: CreateUserDto): Promise<UserEntity> {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(data.password, salt);
 
     const user = await prismaRepository.user.create({
       data: {
         name: data.name,
         username: data.username,
         email: data.email,
-        password: hashedPassword,
+        password: data.password,
         imageUrl: data.imageUrl,
       },
     });
@@ -31,9 +29,9 @@ export class UserRepository {
     return {
       id: user.id,
       name: user.name,
+      imageUrl: user.imageUrl || null,
       username: user.username,
       email: user.email,
-      imageUrl: user.imageUrl || null,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     } as UserEntity;

@@ -34,7 +34,7 @@ export class AuthService {
       newUser.email,
       newUser.createdAt,
       newUser.updatedAt
-    );
+    ).withPassword(newUser.password || "");
   }
 
   public async login(dto: LoginDto): Promise<LoginOutputDto> {

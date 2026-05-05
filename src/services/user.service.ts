@@ -38,7 +38,7 @@ export class UserService {
   }
 
   private mapToModel(entity: UserEntity): User {
-    return new User(
+    const user = new User(
       entity.id,
       entity.name,
       entity.imageUrl || null,
@@ -47,5 +47,11 @@ export class UserService {
       entity.createdAt,
       entity.updatedAt
     );
+
+    if (entity.password) {
+      user.withPassword(entity.password);
+    }
+
+    return user;
   }
 }
