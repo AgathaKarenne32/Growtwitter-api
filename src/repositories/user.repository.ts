@@ -1,10 +1,12 @@
 import prismaRepository from "../database/prisma.repository";
 import { CreateUserDto } from "../dtos";
+import * as bcrypt from "bcrypt";
 
 export interface UserEntity {
   id: string;
   name: string;
   username: string;
+  email: string;
   imageUrl?: string | null;
   password?: string;
   createdAt: Date;
@@ -13,30 +15,39 @@ export interface UserEntity {
 
 export class UserRepository {
   public async create(data: CreateUserDto): Promise<UserEntity> {
-    return await prismaRepository.user.create({
+    const user = await prismaRepository.user.create({
       data: {
         name: data.name,
         username: data.username,
-        imageUrl: data.imageUrl,
+        email: data.email,
         password: data.password,
+        imageUrl: data.imageUrl,
       },
     });
+
+    return {
+      ...user,
+      imageUrl: user.imageUrl || null,
+    } as UserEntity;
   }
 
-  // Método essencial para o Login e Registro funcionarem
   public async findByUsername(username: string): Promise<UserEntity | null> {
-    return await prismaRepository.user.findUnique({
+    const user = await prismaRepository.user.findUnique({
       where: { username },
     });
+    return user as UserEntity | null;
   }
 
   public async findById(id: string): Promise<UserEntity | null> {
-    return await prismaRepository.user.findUnique({
+    const user = await prismaRepository.user.findUnique({
       where: { id },
     });
+    return user as UserEntity | null;
   }
 
   public async listAll(): Promise<UserEntity[]> {
-    return await prismaRepository.user.findMany();
+    const users = await prismaRepository.user.findMany();
+    return users as unknown as UserEntity[];
   }
+
 }

@@ -7,6 +7,7 @@ export interface TweetEntity {
   createdAt: Date;
   updatedAt: Date;
   author?: {
+    email: string;
     id: string;
     name: string;
     username: string;

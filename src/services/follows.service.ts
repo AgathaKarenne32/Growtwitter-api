@@ -2,13 +2,12 @@ import { FollowDto } from "../dtos";
 import { User } from "../models";
 import { HTTPError } from "../utils";
 import {
-  FollowEntity,
   FollowRepository,
 } from "../repositories/follow.repository";
 import { UserEntity } from "../repositories/user.repository";
 
 export class FollowService {
-  constructor(private followRepository: FollowRepository) {}
+  constructor(private followRepository: FollowRepository) { }
 
   public async follow(dto: FollowDto): Promise<void> {
     if (dto.followerId === dto.followingId) {
@@ -57,24 +56,23 @@ export class FollowService {
 
   private async listFollowersByUserId(userId: string): Promise<User[]> {
     const followersDB = await this.followRepository.findManyFollowers(userId);
-
-    return followersDB.map((user) => this.mapToModel(user.follower));
+    return followersDB.map((f) => this.mapToModel(f.follower as unknown as UserEntity));
   }
 
   private async listFollowingsByUserId(userId: string): Promise<User[]> {
     const followingsDB = await this.followRepository.findManyFollowings(userId);
-
-    return followingsDB.map((user) => this.mapToModel(user.following));
+    return followingsDB.map((f) => this.mapToModel(f.following as unknown as UserEntity));
   }
 
   private mapToModel(entity: UserEntity): User {
     return new User(
       entity.id,
       entity.name,
-      entity.imageUrl || null, 
+      entity.imageUrl || null,
       entity.username,
+      entity.email,
       entity.createdAt,
-      entity.updatedAt,
+      entity.updatedAt
     );
   }
 }

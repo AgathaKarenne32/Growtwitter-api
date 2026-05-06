@@ -7,6 +7,7 @@ export const createUserSchema = z.object({
       .string()
       .min(3, "Username must be at least 3 characters long")
       .regex(/^[a-zA-Z0-9_]+$/, "Username must be alphanumeric"),
+    email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters long"),
     imageUrl: z.string().url("Invalid image URL").optional(),
   }),

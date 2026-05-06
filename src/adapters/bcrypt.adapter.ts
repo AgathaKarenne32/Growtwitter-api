@@ -1,15 +1,13 @@
-import bcrypt from "bcrypt";
-
-import { envs } from "../envs";
+import * as bcrypt from "bcrypt";
 
 export class BcryptAdapter {
-  constructor(private _salt: number = envs.BCRYPT_SALT) {}
+  private readonly salt = 10;
 
-  public generateHash(plainText: string): Promise<string> {
-    return bcrypt.hash(plainText, this._salt);
+  public async generateHash(password: string): Promise<string> {
+    return bcrypt.hash(password, this.salt);
   }
 
-  public compareHash(plainText: string, hash: string): Promise<boolean> {
-    return bcrypt.compare(plainText, hash);
+  public async compareHash(password: string, hash: string): Promise<boolean> {
+    return bcrypt.compare(password, hash);
   }
 }

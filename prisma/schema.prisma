@@ -1,93 +1,85 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-    id        String   @id @default(uuid()) @db.Uuid
-    name      String   @db.VarChar(255)
-    imageUrl  String?  @map("image_url") @db.VarChar(255)
-    username  String   @unique @db.VarChar(255)
-    password  String   @db.Text
-    createdAt DateTime @default(now()) @map("created_at") @db.Timestamp
-    updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  username   String   @unique
+  email      String   @unique
+  password   String
+  imageUrl   String?  @map("image_url")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  follows    Follow[] @relation("follower")
+  followedBy Follow[] @relation("following")
+  likes      Like[]
+  tweets     Tweet[]
 
-    tweets     Tweet[]
-    likes      Like[]
-    follows    Follow[] @relation("follower")
-    followedBy Follow[] @relation("following")
-
-    @@map("users")
+  @@map("users")
 }
 
 model Tweet {
-    id             String    @id @default(uuid()) @db.Uuid
-    content        String    @db.VarChar(300)
-    authorId       String    @map("author_id") @db.Uuid
-    type           TweetType @default(NORMAL)
-    parentTweetId  String?   @map("parent_tweet_id") @db.Uuid // Adicionado @db.Uuid e @map
+  id            String    @id @default(uuid()) @db.Uuid
+  content       String    @db.VarChar(300)
+  authorId      String    @map("author_id") @db.Uuid
+  type          TweetType @default(NORMAL)
+  parentTweetId String?   @map("parent_tweet_id") @db.Uuid
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  likes         Like[]
+  replyOf       Reply?    @relation("reply")
+  replies       Reply[]   @relation("tweet")
+  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentTweet   Tweet?    @relation("RetweetRelation", fields: [parentTweetId], references: [id])
+  retweets      Tweet[]   @relation("RetweetRelation")
 
-    // Relações
-    author         User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-    parentTweet    Tweet?    @relation("RetweetRelation", fields: [parentTweetId], references: [id])
-    retweets       Tweet[]   @relation("RetweetRelation")
-    
-    likes          Like[]
-    replies        Reply[]   @relation("tweet")
-    replyOf        Reply?    @relation("reply")
-
-    // Datas únicas e mapeadas
-    createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamp
-    updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp
-
-    @@map("tweets")
+  @@map("tweets")
 }
 
 model Like {
-    tweetId   String   @map("tweet_id") @db.Uuid
-    authorId  String   @map("author_id") @db.Uuid
-    createdAt DateTime @default(now()) @map("created_at") @db.Timestamp
-    updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp
+  tweetId   String   @map("tweet_id") @db.Uuid
+  authorId  String   @map("author_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  tweet     Tweet    @relation(fields: [tweetId], references: [id], onDelete: Cascade)
 
-    author User  @relation(fields: [authorId], references: [id], onDelete: Cascade)
-    tweet  Tweet @relation(fields: [tweetId], references: [id], onDelete: Cascade)
-
-    @@id([tweetId, authorId])
-    @@map("likes")
+  @@id([tweetId, authorId])
+  @@map("likes")
 }
 
 model Reply {
-    tweetId   String   @map("tweet_id") @db.Uuid
-    replyId   String   @unique @map("reply_id") @db.Uuid
-    createdAt DateTime @default(now()) @map("created_at") @db.Timestamp
-    updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp
+  tweetId   String   @map("tweet_id") @db.Uuid
+  replyId   String   @unique @map("reply_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  reply     Tweet    @relation("reply", fields: [replyId], references: [id], onDelete: Cascade)
+  tweet     Tweet    @relation("tweet", fields: [tweetId], references: [id], onDelete: Cascade)
 
-    tweet Tweet @relation(fields: [tweetId], references: [id], name: "tweet", onDelete: Cascade)
-    reply Tweet @relation(fields: [replyId], references: [id], name: "reply", onDelete: Cascade)
-
-    @@id([tweetId, replyId])
-    @@map("replies")
+  @@id([tweetId, replyId])
+  @@map("replies")
 }
 
 model Follow {
-    followerId  String   @map("follower_id") @db.Uuid // quem segue
-    followingId String   @map("following_id") @db.Uuid // quem é seguido
-    createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp
-    updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp
+  followerId  String   @map("follower_id") @db.Uuid
+  followingId String   @map("following_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  follower    User     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
 
-    follower  User @relation(fields: [followerId], references: [id], name: "follower", onDelete: Cascade)
-    following User @relation(fields: [followingId], references: [id], name: "following", onDelete: Cascade)
-
-    @@id([followerId, followingId])
-    @@map("follows")
+  @@id([followerId, followingId])
+  @@map("follows")
 }
 
 enum TweetType {
-    NORMAL
-    RETWEET
-    REPLY
+  NORMAL
+  RETWEET
+  REPLY
 }

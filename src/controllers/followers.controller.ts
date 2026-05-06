@@ -7,8 +7,8 @@ export class FollowersController {
 
   public followUp = async (req: Request, res: Response) => {
     try {
-      const followerId = req.user.id; 
-      const { followingId } = req.body; 
+      const followerId = req.user.id; // ID de quem está seguindo (vem do token)
+      const { followingId } = req.body; // ID de quem será seguido (vem do corpo)
 
       await this.followService.follow({
         followerId,

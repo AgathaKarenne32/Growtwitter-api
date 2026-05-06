@@ -10,12 +10,10 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly bcryptAdapter: BcryptAdapter,
-  ) {}
+  ) { }
 
   public async register(dto: CreateUserDto): Promise<User> {
-    const usernameAlreadyExists = await this.userService.findByUsername(
-      dto.username,
-    );
+    const usernameAlreadyExists = await this.userService.findByUsername(dto.username);
 
     if (usernameAlreadyExists) {
       throw new HTTPError(409, "Username already exists");
@@ -28,7 +26,15 @@ export class AuthService {
       password: passwordHashed,
     });
 
-    return newUser;
+    return new User(
+      newUser.id,
+      newUser.name,
+      newUser.imageUrl || null,
+      newUser.username,
+      newUser.email,
+      newUser.createdAt,
+      newUser.updatedAt
+    ).withPassword(newUser.password || "");
   }
 
   public async login(dto: LoginDto): Promise<LoginOutputDto> {
@@ -38,22 +44,25 @@ export class AuthService {
       throw new HTTPError(404, "User not found");
     }
 
-    const userJson = user.toJSON();
-
     const isPasswordMatch = await this.bcryptAdapter.compareHash(
       dto.password,
-      userJson.password!,
+      user.password || ""
     );
 
     if (!isPasswordMatch) {
       throw new HTTPError(401, "Invalid credentials");
     }
 
+    const userJson = user.toJSON();
+
     const authUser: AuthUserDto = {
       id: userJson.id,
       name: userJson.name,
       username: userJson.username,
+      email: userJson.email,
+      imageUrl: userJson.imageUrl,
     };
+
     const jwt = new JWTAdapter();
     const token = jwt.generateToken(authUser);
 

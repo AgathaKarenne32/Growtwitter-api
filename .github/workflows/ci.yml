@@ -43,9 +43,8 @@ jobs:
         env:
           DATABASE_URL: "postgresql://agatha:mypassword@localhost:5433/growtwitter?schema=public"
 
-      # O GitHub Actions espera o banco estar pronto para rodar as migrations
-      - name: Run Migrations
-        run: npx prisma migrate deploy
+      - name: Sync Database Schema
+        run: npx prisma db push
         env:
           DATABASE_URL: "postgresql://agatha:mypassword@localhost:5433/growtwitter?schema=public"
 
