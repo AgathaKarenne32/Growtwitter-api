@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { FollowFactory } from "../factories";
-import { authMiddleware, dataValidationMiddleware } from "../middlewares"; 
+import { authMiddleware, dataValidationMiddleware } from "../middlewares";
 import { z } from "zod";
 
 const followSchema = z.object({
   body: z.object({
-    userId: z.string().uuid("Invalid User ID format"), 
+    userId: z.string().uuid("Invalid User ID format"),
+    followingId: z.string().uuid("Invalid Following ID format"),
   }),
 });
 
@@ -15,7 +16,7 @@ const controller = FollowFactory.createController();
 FollowersRoutes.post(
   "/",
   authMiddleware,
-  dataValidationMiddleware(followSchema), 
+  dataValidationMiddleware(followSchema),
   controller.followUp,
 );
 
