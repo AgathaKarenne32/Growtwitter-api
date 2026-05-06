@@ -5,7 +5,7 @@ import { z } from "zod";
 
 const followSchema = z.object({
   body: z.object({
-    userId: z.string().uuid("Invalid User ID format"), 
+    followingId: z.string().uuid("Invalid User ID format"), 
   }),
 });
 

@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-
 import { FollowService } from "../services";
 import { onError } from "../utils";
 
@@ -8,12 +7,12 @@ export class FollowersController {
 
   public followUp = async (req: Request, res: Response) => {
     try {
-      const authorId = req.user.id;
-      const { userId } = req.body;
+      const followerId = req.user.id; 
+      const { followingId } = req.body; 
 
       await this.followService.follow({
-        followerId: authorId,
-        followingId: userId,
+        followerId,
+        followingId,
       });
 
       res.status(201).json({
@@ -27,12 +26,12 @@ export class FollowersController {
 
   public unfollow = async (req: Request, res: Response) => {
     try {
-      const authorId = req.user.id;
-      const { userId } = req.body;
+      const followerId = req.user.id;
+      const { followingId } = req.body;
 
       await this.followService.unfollow({
-        followerId: authorId,
-        followingId: userId,
+        followerId,
+        followingId,
       });
 
       res.status(200).json({

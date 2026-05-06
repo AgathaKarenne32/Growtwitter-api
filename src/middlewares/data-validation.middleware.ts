@@ -12,13 +12,13 @@ export const dataValidationMiddleware = (schema: ZodSchema) => {
         params: req.params,
       });
       return next();
-    } catch (error: unknown) { // Definindo como unknown por segurança
+    } catch (error: unknown) { 
       if (error instanceof ZodError) {
         const errorMessage = error.issues
           .map((err) => `${err.path.join(".")}: ${err.message}`)
           .join(", ");
         
-        return next(new HTTPError(400, errorMessage)); // Use return next para erros assíncronos
+        return next(new HTTPError(400, errorMessage)); 
       }
       return next(error);
     }

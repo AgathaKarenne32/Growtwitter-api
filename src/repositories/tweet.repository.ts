@@ -107,3 +107,5 @@ export class TweetRepository {
     }) as unknown as TweetEntity[];
   }
 } 
+
+export { TweetEntity };

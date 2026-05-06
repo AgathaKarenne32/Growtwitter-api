@@ -3,7 +3,7 @@ export interface TweetEntity {
   content: string;
   authorId: string;
   type: string;
-  parentTweetId?: string | null;
+  parentTweetId?: string | null | undefined;
   createdAt: Date;
   updatedAt: Date;
   author?: {
