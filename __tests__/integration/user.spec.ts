@@ -1,6 +1,8 @@
 import request from 'supertest';
-import { app } from '../../src/app';
+import App from '../../src/app'; 
 import { describe, it, expect } from '@jest/globals';
+
+const app = new App().app;
 
 describe('User Integration Tests', () => {
   it('should create a new user via HTTP POST', async () => {
@@ -23,3 +25,4 @@ describe('User Integration Tests', () => {
     expect(response.body.data.email).toBe(userPayload.email);
   });
 });
+

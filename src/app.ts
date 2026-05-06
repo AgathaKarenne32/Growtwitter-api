@@ -4,8 +4,9 @@ import express from "express";
 import { errorHandler } from "./middlewares";
 import router from "./routes";
 
-class App {
+export class App {
   public app: express.Application;
+  server: any;
 
   constructor() {
     this.app = express();
