@@ -15,7 +15,6 @@ export interface UserEntity {
 
 export class UserRepository {
   public async create(data: CreateUserDto): Promise<UserEntity> {
-
     const user = await prismaRepository.user.create({
       data: {
         name: data.name,

@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { UserFactory } from "../factories";
+import { AuthFactory, UserFactory } from "../factories";
 import { authMiddleware, dataValidationMiddleware } from "../middlewares";
 import { z } from "zod";
+
 
 const userIdParamSchema = z.object({
   params: z.object({
@@ -10,15 +11,15 @@ const userIdParamSchema = z.object({
 });
 
 const UsersRoutes = Router();
-const controller = UserFactory.createController();
+const userController = UserFactory.createController();
+const authController = AuthFactory.createController();
 
-UsersRoutes.post("/", controller.create);
+UsersRoutes.post("/", authController.register);
 
 UsersRoutes.get(
-  "/:userId", 
+  "/:userId",
   authMiddleware,
-  dataValidationMiddleware(userIdParamSchema as any), 
-  controller.getById
+  userController.getById
 );
 
 export { UsersRoutes };

@@ -15,7 +15,7 @@ const controller = AuthFactory.createController();
 
 AuthRoutes.post(
   "/login",
-  dataValidationMiddleware(loginSchema), 
+  dataValidationMiddleware(loginSchema),
   controller.login
 );
 

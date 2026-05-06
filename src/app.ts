@@ -2,7 +2,7 @@ import "express-async-errors";
 import cors from "cors";
 import express from "express";
 import { errorHandler } from "./middlewares";
-import router from "./routes"; 
+import router from "./routes";
 
 class App {
   public app: express.Application;
@@ -21,8 +21,7 @@ class App {
 
   private initializeRoutes() {
     this.app.get("/", (req, res) => res.send("Growtwitter API is running!"));
-    
-    this.app.use(router); 
+    this.app.use(router);
   }
 
   private initializeErrorHandling() {
@@ -31,11 +30,9 @@ class App {
 
   public listen(port: number) {
     this.app.listen(port, () => {
-      console.log(`App listening on the port ${port}`);
+      console.log(`App listening on the port 3333`);
     });
   }
 }
 
-export const appInstance = new App();
-export const app = appInstance.app;
 export default App;
